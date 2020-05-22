@@ -29,6 +29,9 @@ rosenv() {
             echo "       Use install setup script with the current workspace."
             echo "    rosenv use --devel"
             echo "       Use devel setup script with the current workspace."
+            echo "    rosenv use --set-default|--no-default"
+            echo "       Set the current workspace as a default workspace."
+            echo "       You can cancel this setting by specifying --no-default"
             echo "    rosenv update [<nickname>] [-jJOB_NUM]"
             echo "       Run \`rosws update\` or \`wstool update\` on the"
             echo "       current workspace. You can specify other workspace"
@@ -259,6 +262,7 @@ EOF
             local nickname
             local develp
             local installp
+            local defaultp
             # parsing argument
             nickname=$ROSENV_CURRENT
             shift               # dispose 'use' argument
@@ -266,6 +270,8 @@ EOF
                 case "$1" in
                     "--install") installp=true;;
                     "--devel") develp=true;;
+                    "--set-default") defaultp=true;;
+                    "--no-default") defaultp=false;;
                     *) nickname=$1;;
                 esac
                 shift
@@ -310,6 +316,15 @@ EOF
                     rosenv_use_hook
                 fi
                 #rospack profile > /dev/null
+
+                if [ "$defaultp" = "true" ]; then
+                    echo $nickname > $ROSENV_DIR/version
+                elif [ "$defaultp" = "false" ]; then
+                    if [ -e $ROSENV_DIR/version ]; then
+                        echo -e "\e[33mDo not use $(cat $ROSENV_DIR/version) as default \e[m"
+                        rm $ROSENV_DIR/version
+                    fi
+                fi
             fi
             ;;
         "update")
@@ -510,7 +525,7 @@ if [ $(basename $SHELL) = "zsh" ]; then
                 # do nothing
                 ;;
             "use")
-                _values "workspaces" $(rosenv list-nicknames) --install --devel
+                _values "workspaces" $(rosenv list-nicknames) --install --devel --set-default --no-default
                 ;;
             "update")
                 _values "workspaces" $(rosenv list-nicknames)
@@ -569,7 +584,7 @@ get-nicknames get-path get-version remove is-catkin use update install packages"
                     ;;
                 use)
                     COMPREPLY=($(compgen -W "$(rosenv list-nicknames)\
- --install --devel" -- ${arg}))
+ --install --devel --set-default --no-default" -- ${arg}))
                     ;;
                 install)
                     if [[ $COMP_CWORD == 3 ]]; then
@@ -619,4 +634,8 @@ if [ $(basename $SHELL) = "zsh" ]; then
         reply=(${=options})
     }
     compctl -K "_catclean" "catclean"
+fi
+
+if [ -e $ROSENV_DIR/version ]; then
+    rosenv use `cat $ROSENV_DIR/version`
 fi
