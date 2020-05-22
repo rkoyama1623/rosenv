@@ -29,7 +29,7 @@ rosenv() {
             echo "       Use install setup script with the current workspace."
             echo "    rosenv use --devel"
             echo "       Use devel setup script with the current workspace."
-            echo "    rosenv use --set-default|--no-default"
+            echo "    rosenv use --default|--no-default"
             echo "       Set the current workspace as a default workspace."
             echo "       You can cancel this setting by specifying --no-default"
             echo "    rosenv update [<nickname>] [-jJOB_NUM]"
@@ -270,7 +270,7 @@ EOF
                 case "$1" in
                     "--install") installp=true;;
                     "--devel") develp=true;;
-                    "--set-default") defaultp=true;;
+                    "--default") defaultp=true;;
                     "--no-default") defaultp=false;;
                     *) nickname=$1;;
                 esac
@@ -529,7 +529,7 @@ if [ $(basename $SHELL) = "zsh" ]; then
                 # do nothing
                 ;;
             "use")
-                _values "workspaces" $(rosenv list-nicknames) --install --devel --set-default --no-default
+                _values "workspaces" $(rosenv list-nicknames) --install --devel --default --no-default
                 ;;
             "update")
                 _values "workspaces" $(rosenv list-nicknames)
@@ -588,7 +588,7 @@ get-nicknames get-path get-version remove is-catkin use update install packages"
                     ;;
                 use)
                     COMPREPLY=($(compgen -W "$(rosenv list-nicknames)\
- --install --devel --set-default --no-default" -- ${arg}))
+ --install --devel --default --no-default" -- ${arg}))
                     ;;
                 install)
                     if [[ $COMP_CWORD == 3 ]]; then

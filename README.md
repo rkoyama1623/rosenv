@@ -25,7 +25,7 @@ rosenv register <nickname> <directory> <distro>
 
 ### switch workspaces
 ```sh
-rosenv use <nickname> [--devel|--install]
+rosenv use <nickname> [--devel|--install] [--default|--no-default]
 rosenv use --devel
 rosenv use --install
 ```
