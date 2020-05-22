@@ -318,7 +318,11 @@ EOF
                 #rospack profile > /dev/null
 
                 if [ "$defaultp" = "true" ]; then
-                    echo $nickname > $ROSENV_DIR/version
+                    if [ "$installp" = "true" ]; then
+                        echo $nickname:install > $ROSENV_DIR/version
+                    else
+                        echo $nickname:devel > $ROSENV_DIR/version
+                    fi
                 elif [ "$defaultp" = "false" ]; then
                     if [ -e $ROSENV_DIR/version ]; then
                         echo -e "\e[33mDo not use $(cat $ROSENV_DIR/version) as default \e[m"
@@ -637,5 +641,11 @@ if [ $(basename $SHELL) = "zsh" ]; then
 fi
 
 if [ -e $ROSENV_DIR/version ]; then
-    rosenv use `cat $ROSENV_DIR/version`
+    nickname=$(sed -E 's/([^:]+):([^:]*)/\1/' $ROSENV_DIR/version)
+    script=$(sed -E 's/([^:]+):([^:]*)/\2/' $ROSENV_DIR/version)
+    if [ $script = "install" ]; then
+        rosenv use $nickname --install >/dev/null
+    else
+        rosenv use $nickname >/dev/null
+    fi
 fi
